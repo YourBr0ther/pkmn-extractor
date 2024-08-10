@@ -148,7 +148,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_friendship(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x29)\n        friendship_value = int.from_bytes(file.read(1), byteorder='little')\n        return friendship_value\ndef read_move_set(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x2C)  # Corrected offset to 0x2C\n        moves = []\n        for _ in range(4):",
+        "peekOfCode": "def read_friendship(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x29)\n        friendship_value = int.from_bytes(file.read(1), byteorder='little')\n        return friendship_value\ndef read_move_set(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x2C)\n        moves = []\n        for _ in range(4):",
         "detail": "app",
         "documentation": {}
     },
@@ -157,7 +157,61 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_move_set(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x2C)  # Corrected offset to 0x2C\n        moves = []\n        for _ in range(4):\n            move_bytes = file.read(2)\n            move = move_bytes[0]  # Use only the first byte\n            moves.append(move)\n        return moves\ndef process_pk3_files(directory, charmap):",
+        "peekOfCode": "def read_move_set(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x2C)\n        moves = []\n        for _ in range(4):\n            move_bytes = file.read(2)\n            move = move_bytes[0]  # Use only the first byte\n            moves.append(move)\n        return moves\ndef read_pp_values(pk3_file_path):",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_pp_values",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_pp_values(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x34)\n        pp_values = []\n        for _ in range(4):\n            pp = int.from_bytes(file.read(1), byteorder='little')\n            pp_values.append(pp)\n        return pp_values\ndef read_ev_and_contest_stats(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_ev_and_contest_stats",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_ev_and_contest_stats(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x38)\n        ev_and_contest_stats = {\n            'HP EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Attack EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Defense EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Speed EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Sp. Attack EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Sp. Defense EV': int.from_bytes(file.read(1), byteorder='little'),",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_pokerus_status",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_pokerus_status(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x44)  # Pokerus is at 0x44 (two bytes: 0x44 and 0x45)\n        pokerus_byte = int.from_bytes(file.read(1), byteorder='little')\n        days_left = pokerus_byte & 0b00001111  # Bits 0-3\n        strain = (pokerus_byte & 0b11110000) >> 4  # Bits 4-7\n        return {'Pokerus Days Left': days_left, 'Pokerus Strain': strain}\ndef read_met_location(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x45)  # Met Location is at 0x45",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_met_location",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_met_location(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x45)  # Met Location is at 0x45\n        met_location = int.from_bytes(file.read(1), byteorder='little')\n        return met_location\ndef read_origin_info(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x46)  # Origin Info is at 0x46-0x47\n        origin_info = int.from_bytes(file.read(2), byteorder='little')\n        gender = 'Female' if origin_info & (1 << 15) else 'Male'  # Bit 15",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_origin_info",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_origin_info(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x46)  # Origin Info is at 0x46-0x47\n        origin_info = int.from_bytes(file.read(2), byteorder='little')\n        gender = 'Female' if origin_info & (1 << 15) else 'Male'  # Bit 15\n        ball = (origin_info >> 11) & 0b1111  # Bits 11-14\n        game_of_origin = (origin_info >> 7) & 0b1111  # Bits 7-10\n        met_type = origin_info & 0b01111111  # Bits 0-6\n        return {\n            'Gender': gender,",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_genetic_info",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_genetic_info(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x48)  # Genetic info is at 0x48-0x4B (4 bytes)\n        genetic_info = int.from_bytes(file.read(4), byteorder='little')\n        # Extracting individual components from the genetic info\n        hp_iv = genetic_info & 0b00000000000000000000000000011111  # Bits 0-4\n        attack_iv = (genetic_info >> 5) & 0b00000000000000000000000000011111  # Bits 5-9\n        defense_iv = (genetic_info >> 10) & 0b00000000000000000000000000011111  # Bits 10-14\n        speed_iv = (genetic_info >> 15) & 0b00000000000000000000000000011111  # Bits 15-19\n        sp_attack_iv = (genetic_info >> 20) & 0b00000000000000000000000000011111  # Bits 20-24",
         "detail": "app",
         "documentation": {}
     },
@@ -175,7 +229,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "directory = 'test_pokemon'\n# Load the character map\ncharmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including the move set\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}')",
+        "peekOfCode": "directory = 'test_pokemon'\n# Load the character map\ncharmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including Genetic Info\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}, PP Values = {data[\"PP Values\"]}, HP EV = {data[\"HP EV\"]}, Attack EV = {data[\"Attack EV\"]}, Defense EV = {data[\"Defense EV\"]}, Speed EV = {data[\"Speed EV\"]}, Sp. Attack EV = {data[\"Sp. Attack EV\"]}, Sp. Defense EV = {data[\"Sp. Defense EV\"]}, Coolness = {data[\"Coolness\"]}, Beauty = {data[\"Beauty\"]}, Cuteness = {data[\"Cuteness\"]}, Smartness = {data[\"Smartness\"]}, Toughness = {data[\"Toughness\"]}, Feel = {data[\"Feel\"]}, Pokerus Days Left = {data[\"Pokerus Days Left\"]}, Pokerus Strain = {data[\"Pokerus Strain\"]}, Met Location = {data[\"Met Location\"]}, Gender = {data[\"Gender\"]}, Ball = {data[\"Ball\"]}, Game of Origin = {data[\"Game of Origin\"]}, Met Type = {data[\"Met Type\"]}, HP IV = {data[\"HP IV\"]}, Attack IV = {data[\"Attack IV\"]}, Defense IV = {data[\"Defense IV\"]}, Speed IV = {data[\"Speed IV\"]}, Sp. Attack IV = {data[\"Sp. Attack IV\"]}, Sp. Defense IV = {data[\"Sp. Defense IV\"]}, Is Egg = {data[\"Is Egg\"]}, Ability Number = {data[\"Ability Number\"]}')",
         "detail": "app",
         "documentation": {}
     },
@@ -184,7 +238,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "charmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including the move set\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}')",
+        "peekOfCode": "charmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including Genetic Info\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}, PP Values = {data[\"PP Values\"]}, HP EV = {data[\"HP EV\"]}, Attack EV = {data[\"Attack EV\"]}, Defense EV = {data[\"Defense EV\"]}, Speed EV = {data[\"Speed EV\"]}, Sp. Attack EV = {data[\"Sp. Attack EV\"]}, Sp. Defense EV = {data[\"Sp. Defense EV\"]}, Coolness = {data[\"Coolness\"]}, Beauty = {data[\"Beauty\"]}, Cuteness = {data[\"Cuteness\"]}, Smartness = {data[\"Smartness\"]}, Toughness = {data[\"Toughness\"]}, Feel = {data[\"Feel\"]}, Pokerus Days Left = {data[\"Pokerus Days Left\"]}, Pokerus Strain = {data[\"Pokerus Strain\"]}, Met Location = {data[\"Met Location\"]}, Gender = {data[\"Gender\"]}, Ball = {data[\"Ball\"]}, Game of Origin = {data[\"Game of Origin\"]}, Met Type = {data[\"Met Type\"]}, HP IV = {data[\"HP IV\"]}, Attack IV = {data[\"Attack IV\"]}, Defense IV = {data[\"Defense IV\"]}, Speed IV = {data[\"Speed IV\"]}, Sp. Attack IV = {data[\"Sp. Attack IV\"]}, Sp. Defense IV = {data[\"Sp. Defense IV\"]}, Is Egg = {data[\"Is Egg\"]}, Ability Number = {data[\"Ability Number\"]}')",
         "detail": "app",
         "documentation": {}
     },
@@ -193,7 +247,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "charmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including the move set\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}')",
+        "peekOfCode": "charmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including Genetic Info\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}, PP Values = {data[\"PP Values\"]}, HP EV = {data[\"HP EV\"]}, Attack EV = {data[\"Attack EV\"]}, Defense EV = {data[\"Defense EV\"]}, Speed EV = {data[\"Speed EV\"]}, Sp. Attack EV = {data[\"Sp. Attack EV\"]}, Sp. Defense EV = {data[\"Sp. Defense EV\"]}, Coolness = {data[\"Coolness\"]}, Beauty = {data[\"Beauty\"]}, Cuteness = {data[\"Cuteness\"]}, Smartness = {data[\"Smartness\"]}, Toughness = {data[\"Toughness\"]}, Feel = {data[\"Feel\"]}, Pokerus Days Left = {data[\"Pokerus Days Left\"]}, Pokerus Strain = {data[\"Pokerus Strain\"]}, Met Location = {data[\"Met Location\"]}, Gender = {data[\"Gender\"]}, Ball = {data[\"Ball\"]}, Game of Origin = {data[\"Game of Origin\"]}, Met Type = {data[\"Met Type\"]}, HP IV = {data[\"HP IV\"]}, Attack IV = {data[\"Attack IV\"]}, Defense IV = {data[\"Defense IV\"]}, Speed IV = {data[\"Speed IV\"]}, Sp. Attack IV = {data[\"Sp. Attack IV\"]}, Sp. Defense IV = {data[\"Sp. Defense IV\"]}, Is Egg = {data[\"Is Egg\"]}, Ability Number = {data[\"Ability Number\"]}')",
         "detail": "app",
         "documentation": {}
     },
@@ -202,7 +256,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "pokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}')",
+        "peekOfCode": "pokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(f'{filename}: Personality Value = {data[\"Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}, Moves = {data[\"Moves\"]}, PP Values = {data[\"PP Values\"]}, HP EV = {data[\"HP EV\"]}, Attack EV = {data[\"Attack EV\"]}, Defense EV = {data[\"Defense EV\"]}, Speed EV = {data[\"Speed EV\"]}, Sp. Attack EV = {data[\"Sp. Attack EV\"]}, Sp. Defense EV = {data[\"Sp. Defense EV\"]}, Coolness = {data[\"Coolness\"]}, Beauty = {data[\"Beauty\"]}, Cuteness = {data[\"Cuteness\"]}, Smartness = {data[\"Smartness\"]}, Toughness = {data[\"Toughness\"]}, Feel = {data[\"Feel\"]}, Pokerus Days Left = {data[\"Pokerus Days Left\"]}, Pokerus Strain = {data[\"Pokerus Strain\"]}, Met Location = {data[\"Met Location\"]}, Gender = {data[\"Gender\"]}, Ball = {data[\"Ball\"]}, Game of Origin = {data[\"Game of Origin\"]}, Met Type = {data[\"Met Type\"]}, HP IV = {data[\"HP IV\"]}, Attack IV = {data[\"Attack IV\"]}, Defense IV = {data[\"Defense IV\"]}, Speed IV = {data[\"Speed IV\"]}, Sp. Attack IV = {data[\"Sp. Attack IV\"]}, Sp. Defense IV = {data[\"Sp. Defense IV\"]}, Is Egg = {data[\"Is Egg\"]}, Ability Number = {data[\"Ability Number\"]}')",
         "detail": "app",
         "documentation": {}
     }
