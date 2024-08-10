@@ -1,0 +1,218 @@
+[
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "csv",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "csv",
+        "description": "csv",
+        "detail": "csv",
+        "documentation": {}
+    },
+    {
+        "label": "read_personality_value",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_personality_value(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        personality_value = int.from_bytes(file.read(4), byteorder=\"little\")\n        print(\n            f\"Extracted Personality Value: {personality_value:08X}\"\n        )  # Debugging output\n        return personality_value\ndef verify_personality_value(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x00)  # Offset 0x00 is where the personality value is stored",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "verify_personality_value",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def verify_personality_value(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x00)  # Offset 0x00 is where the personality value is stored\n        personality_value = int.from_bytes(file.read(4), byteorder=\"little\")\n        print(\n            f\"Verified Personality Value: {personality_value:08X}\"\n        )  # Debugging output\n        return personality_value\ndef read_ot_id(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_ot_id",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_ot_id(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x04)\n        ot_id = int.from_bytes(file.read(4), byteorder=\"little\")\n        return ot_id\ndef read_nickname_raw(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x08)\n        nickname_raw = file.read(10)\n        return nickname_raw",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_nickname_raw",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_nickname_raw(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x08)\n        nickname_raw = file.read(10)\n        return nickname_raw\ndef load_charmap(charmap_path):\n    charmap = {}\n    with open(charmap_path, mode=\"r\", newline=\"\") as csvfile:\n        reader = csv.DictReader(csvfile)\n        if \"Hex\" not in reader.fieldnames or \"Char\" not in reader.fieldnames:",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "load_charmap",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def load_charmap(charmap_path):\n    charmap = {}\n    with open(charmap_path, mode=\"r\", newline=\"\") as csvfile:\n        reader = csv.DictReader(csvfile)\n        if \"Hex\" not in reader.fieldnames or \"Char\" not in reader.fieldnames:\n            raise ValueError(\"CSV file must contain 'Hex' and 'Char' columns\")\n        for row in reader:\n            try:\n                hex_value = int(row[\"Hex\"], 16)\n                charmap[hex_value] = row[\"Char\"]",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "decode_nickname",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def decode_nickname(nickname_raw, charmap):\n    nickname = \"\"\n    for byte in nickname_raw:\n        if (\n            byte == 0x00 or byte not in charmap\n        ):  # Assuming 0x00 is the termination character\n            break\n        nickname += charmap.get(byte, \"?\")\n    return nickname\ndef read_language(pk3_file_path):",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_language",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_language(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x12)\n        language_byte = int.from_bytes(file.read(1), byteorder=\"little\")\n        language_map = {\n            1: \"Japanese\",\n            2: \"English\",\n            3: \"French\",\n            4: \"Italian\",\n            5: \"German\",",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_misc_flags",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_misc_flags(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x13)\n        misc_flags_byte = int.from_bytes(file.read(1), byteorder=\"little\")\n        flags = {\n            \"Is Bad Egg\": bool(misc_flags_byte & 0b00000001),\n            \"Has Species\": bool(misc_flags_byte & 0b00000010),\n            \"Use Egg Name\": bool(misc_flags_byte & 0b00000100),\n            \"Block Box RS\": bool(misc_flags_byte & 0b00001000),\n        }",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_ot_name",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_ot_name(pk3_file_path, charmap):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x14)\n        ot_name_raw = file.read(7)\n        ot_name = decode_nickname(ot_name_raw, charmap)\n        return ot_name\ndef read_markings(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x1B)\n        markings_byte = int.from_bytes(file.read(1), byteorder=\"little\")",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_markings",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_markings(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x1B)\n        markings_byte = int.from_bytes(file.read(1), byteorder=\"little\")\n        markings = []\n        if markings_byte & 0b00000001:\n            markings.append(\"Circle\")\n        if markings_byte & 0b00000010:\n            markings.append(\"Square\")\n        if markings_byte & 0b00000100:",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_level",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_level(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x54)\n        level_byte = int.from_bytes(file.read(1), byteorder=\"little\")\n        return level_byte\ndef read_stat(pk3_file_path, offset):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(offset)\n        stat_value = int.from_bytes(file.read(2), byteorder=\"little\")\n        return stat_value",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_stat",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_stat(pk3_file_path, offset):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(offset)\n        stat_value = int.from_bytes(file.read(2), byteorder=\"little\")\n        return stat_value\ndef read_species(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x20)\n        species_value = int.from_bytes(file.read(2), byteorder=\"little\")\n        return species_value",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_species",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_species(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x20)\n        species_value = int.from_bytes(file.read(2), byteorder=\"little\")\n        return species_value\ndef read_item_held(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x22)\n        item_held_value = int.from_bytes(file.read(2), byteorder=\"little\")\n        return item_held_value",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_item_held",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_item_held(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x22)\n        item_held_value = int.from_bytes(file.read(2), byteorder=\"little\")\n        return item_held_value\ndef read_experience(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x24)\n        experience_value = int.from_bytes(file.read(4), byteorder=\"little\")\n        return experience_value",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_experience",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_experience(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x24)\n        experience_value = int.from_bytes(file.read(4), byteorder=\"little\")\n        return experience_value\ndef read_friendship(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x29)\n        friendship_value = int.from_bytes(file.read(1), byteorder=\"little\")\n        return friendship_value",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "read_friendship",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def read_friendship(pk3_file_path):\n    with open(pk3_file_path, \"rb\") as file:\n        file.seek(0x29)\n        friendship_value = int.from_bytes(file.read(1), byteorder=\"little\")\n        return friendship_value\ndef determine_substructure_order(personality_value):\n    order_map = [\n        \"GAEM\",\n        \"GAME\",\n        \"GEAM\",",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "determine_substructure_order",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def determine_substructure_order(personality_value):\n    order_map = [\n        \"GAEM\",\n        \"GAME\",\n        \"GEAM\",\n        \"GEMA\",\n        \"GMAE\",\n        \"GMEA\",\n        \"AGEM\",\n        \"AGME\",",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "process_pk3_files",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def process_pk3_files(directory, charmap):\n    pokemon_data = {}\n    for filename in os.listdir(directory):\n        if filename.endswith(\".pk3\"):\n            file_path = os.path.join(directory, filename)\n            personality_value = read_personality_value(file_path)\n            verified_personality_value = verify_personality_value(file_path)\n            # Ensure both personality values match\n            if personality_value != verified_personality_value:\n                print(f\"WARNING: Mismatch in personality values for {filename}\")",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "directory",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "directory = \"test_pokemon\"\n# Load the character map\ncharmap_path = \"charmap.csv\"\ncharmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including substructure order\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(\n        f'{filename}: Personality Value = {data[\"Personality Value\"]}, Verified Personality Value = {data[\"Verified Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Substructure Order = {data[\"Substructure Order\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}'\n    )",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "charmap_path",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "charmap_path = \"charmap.csv\"\ncharmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including substructure order\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(\n        f'{filename}: Personality Value = {data[\"Personality Value\"]}, Verified Personality Value = {data[\"Verified Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Substructure Order = {data[\"Substructure Order\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}'\n    )",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "charmap",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "charmap = load_charmap(charmap_path)\n# Process the files and print all the extracted information including substructure order\npokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(\n        f'{filename}: Personality Value = {data[\"Personality Value\"]}, Verified Personality Value = {data[\"Verified Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Substructure Order = {data[\"Substructure Order\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}'\n    )",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "pokemon_data",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "pokemon_data = process_pk3_files(directory, charmap)\nfor filename, data in pokemon_data.items():\n    print(\n        f'{filename}: Personality Value = {data[\"Personality Value\"]}, Verified Personality Value = {data[\"Verified Personality Value\"]}, OT ID (Decimal) = {data[\"OT ID (Decimal)\"]}, Substructure Order = {data[\"Substructure Order\"]}, Nickname = {data[\"Nickname\"]}, Language = {data[\"Language\"]}, Misc Flags = {data[\"Misc Flags\"]}, OT Name = {data[\"OT Name\"]}, Markings = {data[\"Markings\"]}, Level = {data[\"Level\"]}, HP = {data[\"HP\"]}, Attack = {data[\"Attack\"]}, Defense = {data[\"Defense\"]}, Speed = {data[\"Speed\"]}, Sp. Attack = {data[\"Sp. Attack\"]}, Sp. Defense = {data[\"Sp. Defense\"]}, Species = {data[\"Species\"]}, Item Held = {data[\"Item Held\"]}, Experience = {data[\"Experience\"]}, Friendship = {data[\"Friendship\"]}'\n    )",
+        "detail": "app",
+        "documentation": {}
+    }
+]
