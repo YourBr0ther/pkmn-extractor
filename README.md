@@ -2,7 +2,7 @@
 
 ## Description
 
-This Python script is designed to parse and analyze Pokémon Generation 3 (.pk3) files, which contain data for individual Pokémon from the Game Boy Advance era games (Ruby, Sapphire, Emerald, FireRed, LeafGreen). The script extracts a wide range of information from these files, including basic stats, moves, IVs, EVs, origin information, and more.
+This Python script is designed to parse and analyze Pokémon Generation 3 (.pk3) files from Game Boy Advance era games (Ruby, Sapphire, Emerald, FireRed, LeafGreen). It extracts a wide range of information from these files, including basic stats, moves, IVs, EVs, origin information, and more.
 
 ## Features
 
@@ -31,8 +31,7 @@ This Python script is designed to parse and analyze Pokémon Generation 3 (.pk3)
 
 ## Usage
 
-Run the script using Python:
-```python app.py```
+Run the script using Python: ```python app.py```
 
 The script will process all .pk3 files in the `test_pokemon` directory, print the formatted data to the console, and export JSON files to an `exported_pokemon` directory.
 
@@ -43,17 +42,15 @@ The script will process all .pk3 files in the `test_pokemon` directory, print th
 - `charmap.csv`: CSV file containing the character map for decoding names.
 - `exported_pokemon/`: Output directory for JSON files (created by the script).
 
-## Functions
-
-The script contains numerous functions for reading different aspects of the .pk3 file:
+## Key Functions
 
 - `read_personality_value`: Reads the Pokémon's personality value.
 - `read_ot_id`: Extracts the original trainer's ID.
 - `read_nickname_raw` and `decode_nickname`: Read and decode the Pokémon's nickname.
 - `read_language`: Determines the language of the Pokémon data.
-- `read_misc_flags`: Extracts miscellaneous flags (e.g., is bad egg, has species).
+- `read_misc_flags`: Extracts miscellaneous flags.
 - `read_ot_name`: Reads and decodes the original trainer's name.
-- `read_markings`: Extracts Pokémon markings (circle, square, triangle, heart).
+- `read_markings`: Extracts Pokémon markings.
 - `read_level`: Reads the Pokémon's current level.
 - `read_stat`: Reads individual stat values.
 - `read_species` and `read_item_held`: Extracts species and held item information.
@@ -74,7 +71,7 @@ The script provides two types of output:
 
 ## Customization
 
-You can modify the script to handle different input/output directories by changing the `directory` and `output_dir` variables in the main execution block at the bottom of the script.
+You can modify the script to handle different input/output directories by changing the `directory` and `output_dir` variables at the bottom of the script.
 
 ## Contributing
 
@@ -82,7 +79,7 @@ Contributions to improve the script or extend its functionality are welcome. Ple
 
 ## License
 
-GNU GENERAL PUBLIC LICENSE
+GPL-3.0 license
 
 ## Acknowledgements
 
