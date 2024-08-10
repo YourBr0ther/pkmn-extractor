@@ -1,5 +1,6 @@
 import os
 import csv
+import json
 
 def read_personality_value(pk3_file_path):
     with open(pk3_file_path, 'rb') as file:
@@ -219,8 +220,63 @@ def read_genetic_info(pk3_file_path):
             'Ability Number': 2 if ability_number else 1
         }
 
-def process_pk3_files(directory, charmap):
-    pokemon_data = {}
+def get_nature(personality_value):
+    return personality_value % 25
+
+def is_shiny(ot_id, personality_value):
+    tid = ot_id & 0xFFFF  # Lower 16 bits
+    sid = (ot_id >> 16) & 0xFFFF  # Upper 16 bits
+    tid_sid_xor = tid ^ sid
+
+    upper_half_personality = (personality_value >> 16) & 0xFFFF
+    lower_half_personality = personality_value & 0xFFFF
+
+    shiny_value = tid_sid_xor ^ upper_half_personality ^ lower_half_personality
+
+    return shiny_value < 8
+
+def format_pokemon_data(filename, data):
+    output = []
+    output.append(f"=== {filename} ===")
+    output.append(f"General Info:")
+    output.append(f"  Personality Value: {data['Personality Value']}")
+    output.append(f"  Nature: {data['Nature']}, Is Shiny: {data['Is Shiny']}")
+    output.append(f"  Nickname: {data['Nickname']}")
+    output.append(f"  Language: {data['Language']}")
+    output.append(f"  Level: {data['Level']}")
+    output.append(f"  Experience: {data['Experience']}, Friendship: {data['Friendship']}")
+    output.append(f"Trainer Info:")
+    output.append(f"  OT ID: {data['Trainer']['OT ID (Decimal)']}")
+    output.append(f"  OT Name: {data['Trainer']['OT Name']}")
+    output.append(f"  Misc Flags: {data['Trainer']['Misc Flags']}")
+    output.append(f"Stats:")
+    output.append(f"  HP: {data['Stats']['HP']}, Attack: {data['Stats']['Attack']}, Defense: {data['Stats']['Defense']}, Speed: {data['Stats']['Speed']}, Sp. Attack: {data['Stats']['Sp. Attack']}, Sp. Defense: {data['Stats']['Sp. Defense']}")
+    output.append(f"  Species: {data['Species']}, Item Held: {data['Item Held']}")
+    output.append(f"  IVs - HP: {data['IVs']['HP IV']}, Attack: {data['IVs']['Attack IV']}, Defense: {data['IVs']['Defense IV']}, Speed: {data['IVs']['Speed IV']}, Sp. Attack: {data['IVs']['Sp. Attack IV']}, Sp. Defense: {data['IVs']['Sp. Defense IV']}")
+    output.append(f"  EVs - HP: {data['EVs']['HP EV']}, Attack: {data['EVs']['Attack EV']}, Defense: {data['EVs']['Defense EV']}, Speed: {data['EVs']['Speed EV']}, Sp. Attack: {data['EVs']['Sp. Attack EV']}, Sp. Defense: {data['EVs']['Sp. Defense EV']}")
+    output.append(f"Moves:")
+    output.append(f"  Moves: {data['Moves']}")
+    output.append(f"  PP Values: {data['PP Values']}")
+    output.append(f"Condition:")
+    output.append(f"  Pokerus: Days Left: {data['Condition']['Pokerus Days Left']}, Strain: {data['Condition']['Pokerus Strain']}")
+    output.append(f"  Markings: {data['Condition']['Markings']}")
+    output.append(f"Origin Info:")
+    output.append(f"  Met Location: {data['Origin Info']['Met Location']}")
+    output.append(f"  Gender: {data['Origin Info']['Gender']}, Ball: {data['Origin Info']['Ball']}, Game of Origin: {data['Origin Info']['Game of Origin']}, Met Type: {data['Origin Info']['Met Type']}")
+    output.append(f"  Is Egg: {data['Origin Info']['Is Egg']}, Ability Number: {data['Origin Info']['Ability Number']}")
+    output.append(f"Contest Stats:")
+    output.append(f"  Coolness: {data['Contest Stats']['Coolness']}, Beauty: {data['Contest Stats']['Beauty']}, Cuteness: {data['Contest Stats']['Cuteness']}, Smartness: {data['Contest Stats']['Smartness']}, Toughness: {data['Contest Stats']['Toughness']}, Feel: {data['Contest Stats']['Feel']}")
+    output.append("\n")
+    return "\n".join(output)
+
+def export_to_json(filename, data, output_dir):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    json_path = os.path.join(output_dir, f"{filename}.json")
+    with open(json_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+
+def process_pk3_files(directory, charmap, output_dir):
     for filename in os.listdir(directory):
         if filename.endswith('.pk3'):
             file_path = os.path.join(directory, filename)
@@ -250,43 +306,95 @@ def process_pk3_files(directory, charmap):
             met_location = read_met_location(file_path)
             origin_info = read_origin_info(file_path)
             genetic_info = read_genetic_info(file_path)
-            pokemon_data[filename] = {
+            nature = get_nature(personality_value)
+            shiny = is_shiny(ot_id, personality_value)
+
+            # Create a data dictionary
+            data = {
                 'Personality Value': f'{personality_value:08X}',
-                'OT ID (Decimal)': ot_id,
+                'Nature': nature,
+                'Is Shiny': shiny,
                 'Nickname': nickname,
                 'Language': language,
-                'Misc Flags': misc_flags,
-                'OT Name': ot_name,
-                'Markings': ', '.join(markings),
                 'Level': level,
-                'HP': hp,
-                'Attack': attack,
-                'Defense': defense,
-                'Speed': speed,
-                'Sp. Attack': sp_attack,
-                'Sp. Defense': sp_defense,
-                'Species': species,
-                'Item Held': item_held,
                 'Experience': experience,
                 'Friendship': friendship,
+                'Trainer': {
+                    'OT ID (Decimal)': ot_id,
+                    'OT Name': ot_name,
+                    'Misc Flags': misc_flags
+                },
+                'Stats': {
+                    'HP': hp,
+                    'Attack': attack,
+                    'Defense': defense,
+                    'Speed': speed,
+                    'Sp. Attack': sp_attack,
+                    'Sp. Defense': sp_defense
+                },
+                'IVs': {
+                    'HP IV': genetic_info['HP IV'],
+                    'Attack IV': genetic_info['Attack IV'],
+                    'Defense IV': genetic_info['Defense IV'],
+                    'Speed IV': genetic_info['Speed IV'],
+                    'Sp. Attack IV': genetic_info['Sp. Attack IV'],
+                    'Sp. Defense IV': genetic_info['Sp. Defense IV']
+                },
+                'EVs': {
+                    'HP EV': ev_and_contest_stats['HP EV'],
+                    'Attack EV': ev_and_contest_stats['Attack EV'],
+                    'Defense EV': ev_and_contest_stats['Defense EV'],
+                    'Speed EV': ev_and_contest_stats['Speed EV'],
+                    'Sp. Attack EV': ev_and_contest_stats['Sp. Attack EV'],
+                    'Sp. Defense EV': ev_and_contest_stats['Sp. Defense EV']
+                },
                 'Moves': moves,
                 'PP Values': pp_values,
-                **ev_and_contest_stats,
-                **pokerus_status,
-                'Met Location': met_location,
-                **origin_info,
-                **genetic_info
+                'Condition': {
+                    'Pokerus Days Left': pokerus_status['Pokerus Days Left'],
+                    'Pokerus Strain': pokerus_status['Pokerus Strain'],
+                    'Markings': ', '.join(markings)
+                },
+                'Origin Info': {
+                    'Met Location': met_location,
+                    'Gender': origin_info['Gender'],
+                    'Ball': origin_info['Ball'],
+                    'Game of Origin': origin_info['Game of Origin'],
+                    'Met Type': origin_info['Met Type'],
+                    'Is Egg': genetic_info['Is Egg'],
+                    'Ability Number': genetic_info['Ability Number']
+                },
+                'Contest Stats': {
+                    'Coolness': ev_and_contest_stats['Coolness'],
+                    'Beauty': ev_and_contest_stats['Beauty'],
+                    'Cuteness': ev_and_contest_stats['Cuteness'],
+                    'Smartness': ev_and_contest_stats['Smartness'],
+                    'Toughness': ev_and_contest_stats['Toughness'],
+                    'Feel': ev_and_contest_stats['Feel']
+                }
             }
-    return pokemon_data
+
+            # Make sure species and item held are included
+            if species is not None:
+                data['Species'] = species
+            if item_held is not None:
+                data['Item Held'] = item_held
+
+            # Print formatted data to the console
+            print(format_pokemon_data(filename, data))
+
+            # Export to JSON
+            export_to_json(os.path.splitext(filename)[0], data, output_dir)
 
 # Specify the directory where the .pk3 files are located
 directory = 'test_pokemon'
+
+# Specify the output directory for JSON files
+output_dir = 'exported_pokemon'
 
 # Load the character map
 charmap_path = 'charmap.csv'
 charmap = load_charmap(charmap_path)
 
-# Process the files and print all the extracted information including Genetic Info
-pokemon_data = process_pk3_files(directory, charmap)
-for filename, data in pokemon_data.items():
-    print(f'{filename}: Personality Value = {data["Personality Value"]}, OT ID (Decimal) = {data["OT ID (Decimal)"]}, Nickname = {data["Nickname"]}, Language = {data["Language"]}, Misc Flags = {data["Misc Flags"]}, OT Name = {data["OT Name"]}, Markings = {data["Markings"]}, Level = {data["Level"]}, HP = {data["HP"]}, Attack = {data["Attack"]}, Defense = {data["Defense"]}, Speed = {data["Speed"]}, Sp. Attack = {data["Sp. Attack"]}, Sp. Defense = {data["Sp. Defense"]}, Species = {data["Species"]}, Item Held = {data["Item Held"]}, Experience = {data["Experience"]}, Friendship = {data["Friendship"]}, Moves = {data["Moves"]}, PP Values = {data["PP Values"]}, HP EV = {data["HP EV"]}, Attack EV = {data["Attack EV"]}, Defense EV = {data["Defense EV"]}, Speed EV = {data["Speed EV"]}, Sp. Attack EV = {data["Sp. Attack EV"]}, Sp. Defense EV = {data["Sp. Defense EV"]}, Coolness = {data["Coolness"]}, Beauty = {data["Beauty"]}, Cuteness = {data["Cuteness"]}, Smartness = {data["Smartness"]}, Toughness = {data["Toughness"]}, Feel = {data["Feel"]}, Pokerus Days Left = {data["Pokerus Days Left"]}, Pokerus Strain = {data["Pokerus Strain"]}, Met Location = {data["Met Location"]}, Gender = {data["Gender"]}, Ball = {data["Ball"]}, Game of Origin = {data["Game of Origin"]}, Met Type = {data["Met Type"]}, HP IV = {data["HP IV"]}, Attack IV = {data["Attack IV"]}, Defense IV = {data["Defense IV"]}, Speed IV = {data["Speed IV"]}, Sp. Attack IV = {data["Sp. Attack IV"]}, Sp. Defense IV = {data["Sp. Defense IV"]}, Is Egg = {data["Is Egg"]}, Ability Number = {data["Ability Number"]}')
+# Process the files, print the formatted output, and export to JSON
+process_pk3_files(directory, charmap, output_dir)
