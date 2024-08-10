@@ -1,73 +1,82 @@
-# Pokémon Gen 3 (.pk3) File Parser
 
-## Description
+# Pokémon Generation 3 Data Extractor
 
-This Python script is designed to parse and analyze Pokémon Generation 3 (.pk3) files from Game Boy Advance era games (Ruby, Sapphire, Emerald, FireRed, LeafGreen). It extracts a wide range of information from these files, including basic stats, moves, IVs, EVs, origin information, and more.
+This Python script extracts and decodes data from Generation 3 Pokémon game files (`.pk3`) and outputs the information in a human-readable format or as JSON files.
 
 ## Features
 
-- Extracts and decodes Pokémon nicknames and trainer names
-- Reads personality values, OT IDs, and determines if a Pokémon is shiny
-- Parses basic stats (HP, Attack, Defense, etc.)
-- Extracts IVs and EVs for all stats
-- Reads move sets and PP values
-- Decodes Pokérus status
-- Extracts origin information (met location, game of origin, etc.)
-- Reads contest stats
-- Determines Pokémon nature
-- Exports data to both console output and JSON files
+- **Extract Personality Value**: Reads and interprets the Pokémon's personality value.
+- **Trainer Information**: Extracts the Original Trainer's ID, name, and language.
+- **Pokémon Attributes**: Retrieves the Pokémon's nickname, gender, markings, level, and species.
+- **Battle Stats**: Extracts IVs, EVs, contest stats, and move sets.
+- **Genetic Information**: Reads genetic info such as IVs and ability numbers.
+- **Shiny Determination**: Calculates if the Pokémon is shiny based on its data.
+- **Met Information**: Retrieves where and how the Pokémon was obtained.
+- **Output Options**: Provides data as console output or exports it as JSON files.
 
-## Requirements
+## Installation
 
-- Python 3.x
-- CSV file containing character map for decoding names
+1. **Clone the Repository**:
+    ```bash
+    git clone https://github.com/yourusername/pokemon-gen3-extractor.git
+    cd pokemon-gen3-extractor
+    ```
 
-## Setup
+2. **Create a Virtual Environment** (optional but recommended):
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
 
-1. Clone this repository to your local machine.
-2. Ensure you have Python 3.x installed.
-3. Place your .pk3 files in a directory named `test_pokemon` in the same folder as the script.
-4. Ensure you have a `charmap.csv` file in the same directory as the script. This file should contain the mapping for decoding Pokémon and trainer names.
+3. **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
-Run the script using Python: ```python app.py```
+Place your `.pk3` files in the `input` directory and run the script:
 
-The script will process all .pk3 files in the `test_pokemon` directory, print the formatted data to the console, and export JSON files to an `exported_pokemon` directory.
+```bash
+python app.py
+```
 
-## File Structure
+### Example Output
 
-- `app.py`: The main Python script containing all the parsing logic.
-- `test_pokemon/`: Directory containing .pk3 files to be processed.
-- `charmap.csv`: CSV file containing the character map for decoding names.
-- `exported_pokemon/`: Output directory for JSON files (created by the script).
+#### Console Output
+```plaintext
+Reading file: Pikachu.pk3
+Species: Pikachu
+Level: 25
+OT Name: Ash
+Shiny: No
+...
+```
+
+#### JSON Output
+
+The JSON files will be saved in the `exported_pokemon` directory. Here is an example structure:
+
+```json
+{
+    "Species": "Pikachu",
+    "Level": 25,
+    "OT Name": "Ash",
+    "Shiny": false,
+    ...
+}
+```
 
 ## Key Functions
 
 - `read_personality_value`: Reads the Pokémon's personality value.
 - `read_ot_id`: Extracts the original trainer's ID.
 - `read_nickname_raw` and `decode_nickname`: Read and decode the Pokémon's nickname.
-- `read_language`: Determines the language of the Pokémon data.
-- `read_misc_flags`: Extracts miscellaneous flags.
-- `read_ot_name`: Reads and decodes the original trainer's name.
-- `read_markings`: Extracts Pokémon markings.
 - `read_level`: Reads the Pokémon's current level.
 - `read_stat`: Reads individual stat values.
 - `read_species` and `read_item_held`: Extracts species and held item information.
-- `read_experience` and `read_friendship`: Reads experience and friendship values.
-- `read_move_set` and `read_pp_values`: Extracts move information and PP values.
-- `read_ev_and_contest_stats`: Reads EVs and contest stats.
-- `read_pokerus_status`: Determines Pokérus infection status.
-- `read_met_location` and `read_origin_info`: Extracts information about where and how the Pokémon was obtained.
 - `read_genetic_info`: Reads IVs and other genetic information.
 - `get_nature` and `is_shiny`: Determines the Pokémon's nature and shiny status.
-
-## Output
-
-The script provides two types of output:
-
-1. Console output: Formatted text displaying all extracted information for each Pokémon.
-2. JSON files: Detailed data for each Pokémon exported as individual JSON files in the `exported_pokemon` directory.
 
 ## Customization
 
@@ -79,8 +88,9 @@ Contributions to improve the script or extend its functionality are welcome. Ple
 
 ## License
 
-GPL-3.0 license
+This project is licensed under the GPL-3.0 License.
 
 ## Acknowledgements
 
 This script was created to analyze Pokémon data from Generation 3 games. It is not affiliated with or endorsed by Nintendo, Game Freak, or The Pokémon Company.
+
