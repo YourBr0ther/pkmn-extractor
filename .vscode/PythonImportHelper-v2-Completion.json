@@ -31,7 +31,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_personality_value(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        personality_value = int.from_bytes(file.read(4), byteorder='little')\n        return personality_value\ndef read_ot_id(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x04)\n        ot_id = int.from_bytes(file.read(4), byteorder='little')\n        return ot_id\ndef read_nickname_raw(pk3_file_path):",
+        "peekOfCode": "def read_personality_value(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            return int.from_bytes(file.read(4), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading personality value: {e}\")\n        return None\ndef read_ot_id(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:",
         "detail": "app",
         "documentation": {}
     },
@@ -40,7 +40,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_ot_id(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x04)\n        ot_id = int.from_bytes(file.read(4), byteorder='little')\n        return ot_id\ndef read_nickname_raw(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x08)\n        nickname_raw = file.read(10)\n        return nickname_raw",
+        "peekOfCode": "def read_ot_id(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x04)\n            return int.from_bytes(file.read(4), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading OT ID: {e}\")\n        return None\ndef read_nickname_raw(pk3_file_path):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -49,7 +49,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_nickname_raw(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x08)\n        nickname_raw = file.read(10)\n        return nickname_raw\ndef load_charmap(charmap_path):\n    charmap = {}\n    with open(charmap_path, mode='r', newline='') as csvfile:\n        reader = csv.DictReader(csvfile)\n        if 'Hex' not in reader.fieldnames or 'Char' not in reader.fieldnames:",
+        "peekOfCode": "def read_nickname_raw(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x08)\n            return file.read(10)\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading nickname: {e}\")\n        return None\ndef load_charmap(charmap_path):\n    charmap = {}",
         "detail": "app",
         "documentation": {}
     },
@@ -58,7 +58,16 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def load_charmap(charmap_path):\n    charmap = {}\n    with open(charmap_path, mode='r', newline='') as csvfile:\n        reader = csv.DictReader(csvfile)\n        if 'Hex' not in reader.fieldnames or 'Char' not in reader.fieldnames:\n            raise ValueError(\"CSV file must contain 'Hex' and 'Char' columns\")\n        for row in reader:\n            try:\n                hex_value = int(row['Hex'], 16)\n                charmap[hex_value] = row['Char']",
+        "peekOfCode": "def load_charmap(charmap_path):\n    charmap = {}\n    try:\n        with open(charmap_path, mode='r', newline='') as csvfile:\n            reader = csv.DictReader(csvfile)\n            if 'Hex' not in reader.fieldnames or 'Char' not in reader.fieldnames:\n                raise ValueError(\"CSV file must contain 'Hex' and 'Char' columns\")\n            for row in reader:\n                try:\n                    hex_value = int(row['Hex'], 16)",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "load_moves",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def load_moves(csv_file_path):\n    moves = {}\n    try:\n        with open(csv_file_path, mode='r', newline='') as csvfile:\n            reader = csv.DictReader(csvfile)\n            for row in reader:\n                moves[int(row['Number'])] = row['Name']\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error loading moves CSV: {e}\")\n    return moves",
         "detail": "app",
         "documentation": {}
     },
@@ -67,7 +76,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def decode_nickname(nickname_raw, charmap):\n    nickname = ''\n    for byte in nickname_raw:\n        if byte == 0x00 or byte not in charmap:  # Assuming 0x00 is the termination character\n            break\n        nickname += charmap.get(byte, '?')\n    return nickname\ndef read_language(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x12)",
+        "peekOfCode": "def decode_nickname(nickname_raw, charmap):\n    if nickname_raw is None:\n        return \"Unknown\"\n    nickname = ''\n    for byte in nickname_raw:\n        if byte == 0x00 or byte not in charmap:  # Assuming 0x00 is the termination character\n            break\n        nickname += charmap.get(byte, '?')\n    return nickname\ndef read_language(pk3_file_path):",
         "detail": "app",
         "documentation": {}
     },
@@ -76,7 +85,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_language(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x12)\n        language_byte = int.from_bytes(file.read(1), byteorder='little')\n        language_map = {\n            1: 'Japanese',\n            2: 'English',\n            3: 'French',\n            4: 'Italian',\n            5: 'German',",
+        "peekOfCode": "def read_language(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x12)\n            language_byte = int.from_bytes(file.read(1), byteorder='little')\n            language_map = {\n                1: 'Japanese',\n                2: 'English',\n                3: 'French',\n                4: 'Italian',",
         "detail": "app",
         "documentation": {}
     },
@@ -85,7 +94,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_misc_flags(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x13)\n        misc_flags_byte = int.from_bytes(file.read(1), byteorder='little')\n        flags = {\n            'Is Bad Egg': bool(misc_flags_byte & 0b00000001),\n            'Has Species': bool(misc_flags_byte & 0b00000010),\n            'Use Egg Name': bool(misc_flags_byte & 0b00000100),\n            'Block Box RS': bool(misc_flags_byte & 0b00001000),\n        }",
+        "peekOfCode": "def read_misc_flags(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x13)\n            misc_flags_byte = int.from_bytes(file.read(1), byteorder='little')\n            flags = {\n                'Is Bad Egg': bool(misc_flags_byte & 0b00000001),\n                'Has Species': bool(misc_flags_byte & 0b00000010),\n                'Use Egg Name': bool(misc_flags_byte & 0b00000100),\n                'Block Box RS': bool(misc_flags_byte & 0b00001000),",
         "detail": "app",
         "documentation": {}
     },
@@ -94,7 +103,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_ot_name(pk3_file_path, charmap):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x14)\n        ot_name_raw = file.read(7)\n        ot_name = decode_nickname(ot_name_raw, charmap)\n        return ot_name\ndef read_markings(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x1B)\n        markings_byte = int.from_bytes(file.read(1), byteorder='little')",
+        "peekOfCode": "def read_ot_name(pk3_file_path, charmap):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x14)\n            ot_name_raw = file.read(7)\n            return decode_nickname(ot_name_raw, charmap)\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading OT name: {e}\")\n        return 'Unknown'\ndef read_markings(pk3_file_path):",
         "detail": "app",
         "documentation": {}
     },
@@ -103,7 +112,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_markings(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x1B)\n        markings_byte = int.from_bytes(file.read(1), byteorder='little')\n        markings = []\n        if markings_byte & 0b00000001:\n            markings.append('Circle')\n        if markings_byte & 0b00000010:\n            markings.append('Square')\n        if markings_byte & 0b00000100:",
+        "peekOfCode": "def read_markings(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x1B)\n            markings_byte = int.from_bytes(file.read(1), byteorder='little')\n            markings = []\n            if markings_byte & 0b00000001:\n                markings.append('Circle')\n            if markings_byte & 0b00000010:\n                markings.append('Square')",
         "detail": "app",
         "documentation": {}
     },
@@ -112,7 +121,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_level(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x54)\n        level_byte = int.from_bytes(file.read(1), byteorder='little')\n        return level_byte\ndef read_stat(pk3_file_path, offset):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(offset)\n        stat_value = int.from_bytes(file.read(2), byteorder='little')\n        return stat_value",
+        "peekOfCode": "def read_level(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x54)\n            return int.from_bytes(file.read(1), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading level: {e}\")\n        return 0\ndef read_stat(pk3_file_path, offset):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -121,7 +130,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_stat(pk3_file_path, offset):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(offset)\n        stat_value = int.from_bytes(file.read(2), byteorder='little')\n        return stat_value\ndef read_species(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x20)\n        species_value = int.from_bytes(file.read(2), byteorder='little')\n        return species_value",
+        "peekOfCode": "def read_stat(pk3_file_path, offset):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(offset)\n            return int.from_bytes(file.read(2), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading stat at offset {offset}: {e}\")\n        return 0\ndef read_species(pk3_file_path):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -130,7 +139,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_species(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x20)\n        species_value = int.from_bytes(file.read(2), byteorder='little')\n        return species_value\ndef read_item_held(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x22)\n        item_held_value = int.from_bytes(file.read(2), byteorder='little')\n        return item_held_value",
+        "peekOfCode": "def read_species(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x20)\n            return int.from_bytes(file.read(2), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading species: {e}\")\n        return None\ndef read_item_held(pk3_file_path):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -139,7 +148,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_item_held(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x22)\n        item_held_value = int.from_bytes(file.read(2), byteorder='little')\n        return item_held_value\ndef read_experience(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x24)\n        experience_value = int.from_bytes(file.read(4), byteorder='little')\n        return experience_value",
+        "peekOfCode": "def read_item_held(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x22)\n            return int.from_bytes(file.read(2), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading item held: {e}\")\n        return None\ndef read_experience(pk3_file_path):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -148,7 +157,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_experience(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x24)\n        experience_value = int.from_bytes(file.read(4), byteorder='little')\n        return experience_value\ndef read_friendship(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x29)\n        friendship_value = int.from_bytes(file.read(1), byteorder='little')\n        return friendship_value",
+        "peekOfCode": "def read_experience(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x24)\n            return int.from_bytes(file.read(4), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading experience: {e}\")\n        return 0\ndef read_friendship(pk3_file_path):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -157,7 +166,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_friendship(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x29)\n        friendship_value = int.from_bytes(file.read(1), byteorder='little')\n        return friendship_value\ndef read_move_set(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x2C)\n        moves = []\n        for _ in range(4):",
+        "peekOfCode": "def read_friendship(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x29)\n            return int.from_bytes(file.read(1), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading friendship: {e}\")\n        return 0\ndef read_move_set(pk3_file_path, moves):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -166,7 +175,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_move_set(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x2C)\n        moves = []\n        for _ in range(4):\n            move_bytes = file.read(2)\n            move = move_bytes[0]  # Use only the first byte\n            moves.append(move)\n        return moves\ndef read_pp_values(pk3_file_path):",
+        "peekOfCode": "def read_move_set(pk3_file_path, moves):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x2C)\n            move_names = []\n            for _ in range(4):\n                move_number = int.from_bytes(file.read(2), byteorder='little')\n                move_name = moves.get(move_number, f\"Unknown Move ({move_number})\")\n                move_names.append(move_name)\n            return move_names",
         "detail": "app",
         "documentation": {}
     },
@@ -175,7 +184,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_pp_values(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x34)\n        pp_values = []\n        for _ in range(4):\n            pp = int.from_bytes(file.read(1), byteorder='little')\n            pp_values.append(pp)\n        return pp_values\ndef read_ev_and_contest_stats(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:",
+        "peekOfCode": "def read_pp_values(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x34)\n            pp_values = []\n            for _ in range(4):\n                pp = int.from_bytes(file.read(1), byteorder='little')\n                pp_values.append(pp)\n            return pp_values\n    except (FileNotFoundError, IOError) as e:",
         "detail": "app",
         "documentation": {}
     },
@@ -184,7 +193,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_ev_and_contest_stats(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x38)\n        ev_and_contest_stats = {\n            'HP EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Attack EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Defense EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Speed EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Sp. Attack EV': int.from_bytes(file.read(1), byteorder='little'),\n            'Sp. Defense EV': int.from_bytes(file.read(1), byteorder='little'),",
+        "peekOfCode": "def read_ev_and_contest_stats(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x38)\n            return {\n                'HP EV': int.from_bytes(file.read(1), byteorder='little'),\n                'Attack EV': int.from_bytes(file.read(1), byteorder='little'),\n                'Defense EV': int.from_bytes(file.read(1), byteorder='little'),\n                'Speed EV': int.from_bytes(file.read(1), byteorder='little'),\n                'Sp. Attack EV': int.from_bytes(file.read(1), byteorder='little'),",
         "detail": "app",
         "documentation": {}
     },
@@ -193,7 +202,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_pokerus_status(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x44)  # Pokerus is at 0x44 (two bytes: 0x44 and 0x45)\n        pokerus_byte = int.from_bytes(file.read(1), byteorder='little')\n        days_left = pokerus_byte & 0b00001111  # Bits 0-3\n        strain = (pokerus_byte & 0b11110000) >> 4  # Bits 4-7\n        return {'Pokerus Days Left': days_left, 'Pokerus Strain': strain}\ndef read_met_location(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x45)  # Met Location is at 0x45",
+        "peekOfCode": "def read_pokerus_status(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x44)  # Pokerus is at 0x44 (two bytes: 0x44 and 0x45)\n            pokerus_byte = int.from_bytes(file.read(1), byteorder='little')\n            days_left = pokerus_byte & 0b00001111  # Bits 0-3\n            strain = (pokerus_byte & 0b11110000) >> 4  # Bits 4-7\n            return {'Pokerus Days Left': days_left, 'Pokerus Strain': strain}\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading Pokerus status: {e}\")",
         "detail": "app",
         "documentation": {}
     },
@@ -202,7 +211,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_met_location(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x45)  # Met Location is at 0x45\n        met_location = int.from_bytes(file.read(1), byteorder='little')\n        return met_location\ndef read_origin_info(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x46)  # Origin Info is at 0x46-0x47\n        origin_info = int.from_bytes(file.read(2), byteorder='little')\n        gender = 'Female' if origin_info & (1 << 15) else 'Male'  # Bit 15",
+        "peekOfCode": "def read_met_location(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x45)  # Met Location is at 0x45\n            return int.from_bytes(file.read(1), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading met location: {e}\")\n        return 0\ndef read_origin_info(pk3_file_path):\n    try:",
         "detail": "app",
         "documentation": {}
     },
@@ -211,7 +220,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_origin_info(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x46)  # Origin Info is at 0x46-0x47\n        origin_info = int.from_bytes(file.read(2), byteorder='little')\n        gender = 'Female' if origin_info & (1 << 15) else 'Male'  # Bit 15\n        ball = (origin_info >> 11) & 0b1111  # Bits 11-14\n        game_of_origin = (origin_info >> 7) & 0b1111  # Bits 7-10\n        met_type = origin_info & 0b01111111  # Bits 0-6\n        return {\n            'Gender': gender,",
+        "peekOfCode": "def read_origin_info(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x46)  # Origin Info is at 0x46-0x47\n            origin_info = int.from_bytes(file.read(2), byteorder='little')\n            gender = 'Female' if origin_info & (1 << 15) else 'Male'  # Bit 15\n            ball = (origin_info >> 11) & 0b1111  # Bits 11-14\n            game_of_origin = (origin_info >> 7) & 0b1111  # Bits 7-10\n            met_type = origin_info & 0b01111111  # Bits 0-6\n            return {",
         "detail": "app",
         "documentation": {}
     },
@@ -220,7 +229,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def read_genetic_info(pk3_file_path):\n    with open(pk3_file_path, 'rb') as file:\n        file.seek(0x48)  # Genetic info is at 0x48-0x4B (4 bytes)\n        genetic_info = int.from_bytes(file.read(4), byteorder='little')\n        # Extracting individual components from the genetic info\n        hp_iv = genetic_info & 0b00000000000000000000000000011111  # Bits 0-4\n        attack_iv = (genetic_info >> 5) & 0b00000000000000000000000000011111  # Bits 5-9\n        defense_iv = (genetic_info >> 10) & 0b00000000000000000000000000011111  # Bits 10-14\n        speed_iv = (genetic_info >> 15) & 0b00000000000000000000000000011111  # Bits 15-19\n        sp_attack_iv = (genetic_info >> 20) & 0b00000000000000000000000000011111  # Bits 20-24",
+        "peekOfCode": "def read_genetic_info(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            file.seek(0x48)  # Genetic info is at 0x48-0x4B (4 bytes)\n            genetic_info = int.from_bytes(file.read(4), byteorder='little')\n            # Extracting individual components from the genetic info\n            hp_iv = genetic_info & 0b00000000000000000000000000011111  # Bits 0-4\n            attack_iv = (genetic_info >> 5) & 0b00000000000000000000000000011111  # Bits 5-9\n            defense_iv = (genetic_info >> 10) & 0b00000000000000000000000000011111  # Bits 10-14\n            speed_iv = (genetic_info >> 15) & 0b00000000000000000000000000011111  # Bits 15-19",
         "detail": "app",
         "documentation": {}
     },
@@ -229,7 +238,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def get_nature(personality_value):\n    return personality_value % 25\ndef is_shiny(ot_id, personality_value):\n    tid = ot_id & 0xFFFF  # Lower 16 bits\n    sid = (ot_id >> 16) & 0xFFFF  # Upper 16 bits\n    tid_sid_xor = tid ^ sid\n    upper_half_personality = (personality_value >> 16) & 0xFFFF\n    lower_half_personality = personality_value & 0xFFFF\n    shiny_value = tid_sid_xor ^ upper_half_personality ^ lower_half_personality\n    return shiny_value < 8",
+        "peekOfCode": "def get_nature(personality_value):\n    try:\n        return personality_value % 25\n    except TypeError as e:\n        print(f\"Error determining nature: {e}\")\n        return 'Unknown'\ndef is_shiny(ot_id, personality_value):\n    try:\n        tid = ot_id & 0xFFFF  # Lower 16 bits\n        sid = (ot_id >> 16) & 0xFFFF  # Upper 16 bits",
         "detail": "app",
         "documentation": {}
     },
@@ -238,7 +247,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def is_shiny(ot_id, personality_value):\n    tid = ot_id & 0xFFFF  # Lower 16 bits\n    sid = (ot_id >> 16) & 0xFFFF  # Upper 16 bits\n    tid_sid_xor = tid ^ sid\n    upper_half_personality = (personality_value >> 16) & 0xFFFF\n    lower_half_personality = personality_value & 0xFFFF\n    shiny_value = tid_sid_xor ^ upper_half_personality ^ lower_half_personality\n    return shiny_value < 8\ndef format_pokemon_data(filename, data):\n    output = []",
+        "peekOfCode": "def is_shiny(ot_id, personality_value):\n    try:\n        tid = ot_id & 0xFFFF  # Lower 16 bits\n        sid = (ot_id >> 16) & 0xFFFF  # Upper 16 bits\n        tid_sid_xor = tid ^ sid\n        upper_half_personality = (personality_value >> 16) & 0xFFFF\n        lower_half_personality = personality_value & 0xFFFF\n        shiny_value = tid_sid_xor ^ upper_half_personality ^ lower_half_personality\n        return shiny_value < 8\n    except TypeError as e:",
         "detail": "app",
         "documentation": {}
     },
@@ -256,7 +265,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def export_to_json(filename, data, output_dir):\n    if not os.path.exists(output_dir):\n        os.makedirs(output_dir)\n    json_path = os.path.join(output_dir, f\"{filename}.json\")\n    with open(json_path, 'w') as json_file:\n        json.dump(data, json_file, indent=4)\ndef process_pk3_files(directory, charmap, output_dir):\n    for filename in os.listdir(directory):\n        if filename.endswith('.pk3'):\n            file_path = os.path.join(directory, filename)",
+        "peekOfCode": "def export_to_json(filename, data, output_dir):\n    try:\n        if not os.path.exists(output_dir):\n            os.makedirs(output_dir)\n        json_path = os.path.join(output_dir, f\"{filename}.json\")\n        with open(json_path, 'w') as json_file:\n            json.dump(data, json_file, indent=4)\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error exporting to JSON: {e}\")\ndef process_pk3_files(directory, charmap, output_dir, moves):",
         "detail": "app",
         "documentation": {}
     },
@@ -265,34 +274,52 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def process_pk3_files(directory, charmap, output_dir):\n    for filename in os.listdir(directory):\n        if filename.endswith('.pk3'):\n            file_path = os.path.join(directory, filename)\n            personality_value = read_personality_value(file_path)\n            ot_id = read_ot_id(file_path)\n            nickname_raw = read_nickname_raw(file_path)\n            nickname = decode_nickname(nickname_raw, charmap)\n            language = read_language(file_path)\n            misc_flags = read_misc_flags(file_path)",
+        "peekOfCode": "def process_pk3_files(directory, charmap, output_dir, moves):\n    if not os.path.exists(directory):\n        print(f\"Error: The directory '{directory}' does not exist.\")\n        return\n    for filename in os.listdir(directory):\n        if filename.endswith('.pk3'):\n            try:\n                file_path = os.path.join(directory, filename)\n                personality_value = read_personality_value(file_path)\n                ot_id = read_ot_id(file_path)",
         "detail": "app",
         "documentation": {}
     },
     {
-        "label": "directory",
+        "label": "DIRECTORY",
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "directory = 'test_pokemon'\n# Specify the output directory for JSON files\noutput_dir = 'exported_pokemon'\n# Load the character map\ncharmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(directory, charmap, output_dir)",
+        "peekOfCode": "DIRECTORY = 'test_pokemon'          # Directory where the .pk3 files are located\nOUTPUT_DIR = 'exported_pokemon'     # Output directory for JSON files\nCHARMAP_PATH = 'charmap.csv'        # Path to the character map CSV file\n# Utility functions\ndef read_personality_value(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            return int.from_bytes(file.read(4), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading personality value: {e}\")",
         "detail": "app",
         "documentation": {}
     },
     {
-        "label": "output_dir",
+        "label": "OUTPUT_DIR",
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "output_dir = 'exported_pokemon'\n# Load the character map\ncharmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(directory, charmap, output_dir)",
+        "peekOfCode": "OUTPUT_DIR = 'exported_pokemon'     # Output directory for JSON files\nCHARMAP_PATH = 'charmap.csv'        # Path to the character map CSV file\n# Utility functions\ndef read_personality_value(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            return int.from_bytes(file.read(4), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading personality value: {e}\")\n        return None",
         "detail": "app",
         "documentation": {}
     },
     {
-        "label": "charmap_path",
+        "label": "CHARMAP_PATH",
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "charmap_path = 'charmap.csv'\ncharmap = load_charmap(charmap_path)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(directory, charmap, output_dir)",
+        "peekOfCode": "CHARMAP_PATH = 'charmap.csv'        # Path to the character map CSV file\n# Utility functions\ndef read_personality_value(pk3_file_path):\n    try:\n        with open(pk3_file_path, 'rb') as file:\n            return int.from_bytes(file.read(4), byteorder='little')\n    except (FileNotFoundError, IOError) as e:\n        print(f\"Error reading personality value: {e}\")\n        return None\ndef read_ot_id(pk3_file_path):",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "moves_csv_path",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "moves_csv_path = 'moves.csv'  # Path to your moves.csv file\nmoves = load_moves(moves_csv_path)\n# Load the character map\ncharmap = load_charmap(CHARMAP_PATH)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(DIRECTORY, charmap, OUTPUT_DIR, moves)",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "moves",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "moves = load_moves(moves_csv_path)\n# Load the character map\ncharmap = load_charmap(CHARMAP_PATH)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(DIRECTORY, charmap, OUTPUT_DIR, moves)",
         "detail": "app",
         "documentation": {}
     },
@@ -301,7 +328,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "charmap = load_charmap(charmap_path)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(directory, charmap, output_dir)",
+        "peekOfCode": "charmap = load_charmap(CHARMAP_PATH)\n# Process the files, print the formatted output, and export to JSON\nprocess_pk3_files(DIRECTORY, charmap, OUTPUT_DIR, moves)",
         "detail": "app",
         "documentation": {}
     }
