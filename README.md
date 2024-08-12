@@ -1,96 +1,78 @@
+# Pokémon Data Extractor and Character Card Creator
 
-# Pokémon Generation 3 Data Extractor
+This repository contains two Python scripts for extracting data from Pokémon game files (.pk3) and creating character cards for use in AI role-playing scenarios.
 
-This Python script extracts and decodes data from Generation 3 Pokémon game files (`.pk3`) and outputs the information in a human-readable format or as JSON files.
+## Scripts
 
-## Features
+### 1. extractor.py
 
-- **Extract Personality Value**: Reads and interprets the Pokémon's personality value.
-- **Trainer Information**: Extracts the Original Trainer's ID, name, and language.
-- **Pokémon Attributes**: Retrieves the Pokémon's nickname, gender, markings, level, and species.
-- **Battle Stats**: Extracts IVs, EVs, contest stats, and move sets.
-- **Genetic Information**: Reads genetic info such as IVs and ability numbers.
-- **Shiny Determination**: Calculates if the Pokémon is shiny based on its data.
-- **Met Information**: Retrieves where and how the Pokémon was obtained.
-- **Output Options**: Provides data as console output or exports it as JSON files.
+This script extracts detailed information from .pk3 files, which are used to store individual Pokémon data in certain Pokémon games.
 
-## Installation
+#### Features:
+- Reads various attributes from .pk3 files (personality value, nickname, stats, moves, etc.)
+- Decodes game-specific encodings using a character map
+- Fetches additional Pokémon data from the PokeAPI
+- Exports extracted data to JSON files
+- Provides console output of formatted Pokémon data
 
-1. **Clone the Repository**:
-    ```bash
-    git clone https://github.com/yourusername/pokemon-gen3-extractor.git
-    cd pokemon-gen3-extractor
-    ```
+#### Requirements:
+- Python 3.x
+- `requests` library
+- CSV files: `charmap.csv` and `moves.csv`
 
-2. **Create a Virtual Environment** (optional but recommended):
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
+#### Usage:
+1. Place your .pk3 files in the specified input directory
+2. Run the script: `python extractor.py`
+3. Check the output directory for JSON files and console for formatted output
 
-3. **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+### 2. character_maker.py
 
-## Usage
+This script takes the JSON files produced by `extractor.py` and creates character cards suitable for AI role-playing scenarios.
 
-Place your `.pk3` files in the `input` directory and run the script:
+#### Features:
+- Loads Pokémon data from JSON files
+- Calculates friendship levels
+- Downloads sprite images from PokeAPI
+- Creates detailed character cards with personality traits
+- Exports character cards in a format compatible with AI role-playing platforms (e.g., SillyTavern)
 
-```bash
-python app.py
-```
+#### Requirements:
+- Python 3.x
+- `requests` library
+- `Pillow` library (for image processing)
 
-### Example Output
+#### Usage:
+1. Ensure you have JSON files produced by `extractor.py` in the input directory
+2. Run the script: `python character_maker.py`
+3. Check the output directory for character card files (.png with embedded JSON)
 
-#### Console Output
-```plaintext
-Reading file: Pikachu.pk3
-Species: Pikachu
-Level: 25
-OT Name: Ash
-Shiny: No
-...
-```
+## Setup
 
-#### JSON Output
+1. Clone this repository
+2. Install required libraries: `pip install requests pillow`
+3. Prepare your .pk3 files and place them in the input directory
+4. Run `extractor.py` followed by `character_maker.py`
 
-The JSON files will be saved in the `exported_pokemon` directory. Here is an example structure:
+## Configuration
 
-```json
-{
-    "Species": "Pikachu",
-    "Level": 25,
-    "OT Name": "Ash",
-    "Shiny": false,
-    ...
-}
-```
+Both scripts use configurable variables for input/output directories and file paths. Adjust these in the script files as needed:
 
-## Key Functions
+- `DIRECTORY`: Input directory for .pk3 files
+- `OUTPUT_DIR`: Output directory for JSON and character card files
+- `CHARMAP_PATH`: Path to the character map CSV file
+- Other paths like `moves.csv` file location
 
-- `read_personality_value`: Reads the Pokémon's personality value.
-- `read_ot_id`: Extracts the original trainer's ID.
-- `read_nickname_raw` and `decode_nickname`: Read and decode the Pokémon's nickname.
-- `read_level`: Reads the Pokémon's current level.
-- `read_stat`: Reads individual stat values.
-- `read_species` and `read_item_held`: Extracts species and held item information.
-- `read_genetic_info`: Reads IVs and other genetic information.
-- `get_nature` and `is_shiny`: Determines the Pokémon's nature and shiny status.
+## Notes
 
-## Customization
-
-You can modify the script to handle different input/output directories by changing the `directory` and `output_dir` variables at the bottom of the script.
+- These scripts are designed for educational and personal use
+- Ensure you have the right to use any Pokémon data extracted with these scripts
+- The character cards created are intended for use in AI role-playing scenarios and may not accurately represent official Pokémon characteristics
 
 ## Contributing
 
-Contributions to improve the script or extend its functionality are welcome. Please feel free to submit pull requests or open issues for any bugs or feature requests.
+Contributions, issues, and feature requests are welcome. Feel free to check [issues page](https://github.com/yourusername/your-repo-name/issues) if you want to contribute.
 
 ## License
 
 This project is licensed under the GPL-3.0 License.
-
-## Acknowledgements
-
-This script was created to analyze Pokémon data from Generation 3 games. It is not affiliated with or endorsed by Nintendo, Game Freak, or The Pokémon Company.
 
