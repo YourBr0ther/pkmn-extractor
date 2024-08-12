@@ -655,9 +655,9 @@ def clean_text(text):
 
 def get_pokemon_data(species_identifier):
     """
-    Fetches types and Pokédex entries from the PokeAPI for a given Pokémon species identifier.
+    Fetches types, Pokédex entries, species name, and species number from the PokeAPI for a given Pokémon species identifier.
     :param species_identifier: The species name or ID of the Pokémon to fetch data for.
-    :return: Dictionary containing types and a list of the 5 longest, unique Pokédex entries.
+    :return: Dictionary containing species name, species number, types, and a list of the 5 longest, unique Pokédex entries.
     """
     url = f"https://pokeapi.co/api/v2/pokemon/{species_identifier}"
     species_url = f"https://pokeapi.co/api/v2/pokemon-species/{species_identifier}"
@@ -671,10 +671,14 @@ def get_pokemon_data(species_identifier):
         # Extracting types
         types = [type_info["type"]["name"] for type_info in pokemon_data["types"]]
 
-        # Fetching species data to get Pokédex entries
+        # Fetching species data to get Pokédex entries, species name, and species number
         response = requests.get(species_url)
         response.raise_for_status()
         species_data = response.json()
+
+        # Extracting species name and species number
+        species_name = species_data["name"]
+        species_number = species_data["id"]
 
         # Extracting and cleaning 8 Pokédex entries
         raw_entries = [entry["flavor_text"] for entry in species_data["flavor_text_entries"][:8]]
@@ -684,7 +688,12 @@ def get_pokemon_data(species_identifier):
         cleaned_entries.sort(key=len, reverse=True)
         longest_entries = cleaned_entries[:5]
 
-        return {"types": types, "pokedex_entries": longest_entries}
+        return {
+            "species_name": species_name.capitalize(),
+            "species_number": species_number,
+            "types": types,
+            "pokedex_entries": longest_entries
+        }
 
     except requests.RequestException as e:
         print(f"Error fetching data for species {species_identifier}: {e}")
@@ -802,6 +811,9 @@ def process_pk3_files(directory, charmap, output_dir, moves):
                 # Fetch additional Pokémon data using the PokeAPI
                 additional_data = get_pokemon_data(species)
 
+                if additional_data is None:
+                    raise ValueError(f"Could not fetch additional data for species ID {species}.")
+
                 # Create a data dictionary
                 data = {
                     "Personality Value": (
@@ -821,7 +833,11 @@ def process_pk3_files(directory, charmap, output_dir, moves):
                         "OT Name": ot_name,
                         "Misc Flags": misc_flags if misc_flags is not None else {},
                     },
-                    "Species": species,  # Ensure species is included here
+                    "Species": {
+                        "ID": species,  # Ensure species ID is included here
+                        "Name": additional_data["species_name"],  # Include species name
+                        "Number": additional_data["species_number"]  # Include species number
+                    },
                     "Stats": {
                         "HP": hp,
                         "Attack": attack,
@@ -872,7 +888,7 @@ def process_pk3_files(directory, charmap, output_dir, moves):
                     },
                 }
 
-                # Check if item_held is not None before adding it to the data dictionary
+                # Ensure the item_held is added to the data dictionary, even if it's None
                 if item_held is not None:
                     data["Item Held"] = item_held
                 else:

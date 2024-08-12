@@ -40,7 +40,16 @@
         "kind": 2,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "def load_pokemon_data(file_path):\n    with open(file_path, 'r') as file:\n        data = json.load(file)\n    return data\ndef create_character_card(pokemon_data):\n    personality = pokemon_data.get('Nature')\n    friendship = pokemon_data.get('Friendship', 0)\n    nickname = pokemon_data.get('Nickname', 'Unknown')\n    species = pokemon_data.get('Species', 'Unknown Species')\n    trainer = pokemon_data.get('Trainer', {}).get('OT Name', 'Unknown Trainer')",
+        "peekOfCode": "def load_pokemon_data(file_path):\n    with open(file_path, 'r') as file:\n        data = json.load(file)\n    return data\ndef determine_friendship_level(friendship):\n    if friendship >= 255:\n        return \"Inseparable\"\n    elif friendship >= 235:\n        return \"Very Close\"\n    elif friendship >= 215:",
+        "detail": "character_maker",
+        "documentation": {}
+    },
+    {
+        "label": "determine_friendship_level",
+        "kind": 2,
+        "importPath": "character_maker",
+        "description": "character_maker",
+        "peekOfCode": "def determine_friendship_level(friendship):\n    if friendship >= 255:\n        return \"Inseparable\"\n    elif friendship >= 235:\n        return \"Very Close\"\n    elif friendship >= 215:\n        return \"Best Friends\"\n    elif friendship >= 195:\n        return \"Close\"\n    elif friendship >= 175:",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -49,7 +58,7 @@
         "kind": 2,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "def create_character_card(pokemon_data):\n    personality = pokemon_data.get('Nature')\n    friendship = pokemon_data.get('Friendship', 0)\n    nickname = pokemon_data.get('Nickname', 'Unknown')\n    species = pokemon_data.get('Species', 'Unknown Species')\n    trainer = pokemon_data.get('Trainer', {}).get('OT Name', 'Unknown Trainer')\n    stats = pokemon_data.get('Stats', {})\n    moves = pokemon_data.get('Moves', [])\n    pokedex_entries = pokemon_data.get('Additional Data', {}).get('pokedex_entries', [])\n    # Generic behavior based on available data",
+        "peekOfCode": "def create_character_card(pokemon_data):\n    nickname = pokemon_data.get('Nickname', None) or pokemon_data.get('Species', {}).get('Name', 'Unknown Species')\n    trainer = \"{{user}}\"\n    species_name = pokemon_data.get('Species', {}).get('Name', 'Unknown Species')\n    met_location = pokemon_data.get('Origin Info', {}).get('Met Location', 'Unknown Location')\n    friendship = pokemon_data.get('Friendship', 0)\n    level = pokemon_data.get('Level', 1)\n    age = max(level, 18)  # Set minimum age to 18\n    nature = pokemon_data.get('Nature', 'Unknown Nature')\n    gender = pokemon_data.get('Origin Info', {}).get('Gender', 'Unknown Gender')",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -58,7 +67,16 @@
         "kind": 2,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "def trade_to_real_world(character_card):\n    intro = f\"{character_card['name']} has just been traded from the Pokémon world to the real world!\"\n    intro += f\"\\nTrainer: {character_card['trainer']}\"\n    intro += f\"\\nSpecies: {character_card['species']}\"\n    intro += f\"\\nLevel: {character_card['level']}\"\n    intro += f\"\\nIs Shiny: {'Yes' if character_card['is_shiny'] else 'No'}\"\n    intro += f\"\\nBehavior: {character_card['personality']}\"\n    # Add flavor text based on Pokédex entries\n    if character_card['pokedex_entries']:\n        intro += f\"\\n\\nPokédex Entries:\\n\" + \"\\n\".join(character_card['pokedex_entries'])",
+        "peekOfCode": "def trade_to_real_world(character_card):\n    intro = f\"{character_card['name']} has just been transferred out of the video game world and into a virtual console where they can interact with their trainer!\"\n    intro += f\"\\nTrainer: {character_card['trainer']}\"\n    intro += f\"\\nSpecies: {character_card['species']}\"\n    intro += f\"\\nLevel (Age): {character_card['level']}\"\n    intro += f\"\\nFriendship Level: {character_card['friendship_level']}\"\n    intro += f\"\\nGender: {character_card['gender']}\"\n    intro += f\"\\nMet Location: {character_card['met_location']}\"\n    intro += f\"\\nMet Type: {character_card['met_type']}\"\n    intro += f\"\\nIs Shiny: {'Yes' if character_card['is_shiny'] else 'No'}\"",
+        "detail": "character_maker",
+        "documentation": {}
+    },
+    {
+        "label": "export_to_sillytavern",
+        "kind": 2,
+        "importPath": "character_maker",
+        "description": "character_maker",
+        "peekOfCode": "def export_to_sillytavern(character_card, file_name):\n    card_data = {\n        \"data\": {\n            \"alternate_greetings\": [],\n            \"avatar\": \"none\",\n            \"character_version\": \"1.0\",\n            \"creator\": \"Pokémon Import Script\",\n            \"creator_notes\": \"\",\n            \"description\": trade_to_real_world(character_card),\n            \"extensions\": {",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -67,7 +85,7 @@
         "kind": 5,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "file_path = r'.\\exported_pokemon\\Pikachu.json'  # This should be updated to the path of any Pokémon's JSON file\npokemon_data = load_pokemon_data(file_path)\ncharacter_card = create_character_card(pokemon_data)\nreal_world_intro = trade_to_real_world(character_card)\nprint(real_world_intro)",
+        "peekOfCode": "file_path = r'D:\\Scripts\\pkmn-extractor\\exported_pokemon\\Pikachu.json'  # Update this path\npokemon_data = load_pokemon_data(file_path)\ncharacter_card = create_character_card(pokemon_data)\nexport_to_sillytavern(character_card, r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards\\Pikachu_character_card.json')",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -76,7 +94,7 @@
         "kind": 5,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "pokemon_data = load_pokemon_data(file_path)\ncharacter_card = create_character_card(pokemon_data)\nreal_world_intro = trade_to_real_world(character_card)\nprint(real_world_intro)",
+        "peekOfCode": "pokemon_data = load_pokemon_data(file_path)\ncharacter_card = create_character_card(pokemon_data)\nexport_to_sillytavern(character_card, r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards\\Pikachu_character_card.json')",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -85,16 +103,7 @@
         "kind": 5,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "character_card = create_character_card(pokemon_data)\nreal_world_intro = trade_to_real_world(character_card)\nprint(real_world_intro)",
-        "detail": "character_maker",
-        "documentation": {}
-    },
-    {
-        "label": "real_world_intro",
-        "kind": 5,
-        "importPath": "character_maker",
-        "description": "character_maker",
-        "peekOfCode": "real_world_intro = trade_to_real_world(character_card)\nprint(real_world_intro)",
+        "peekOfCode": "character_card = create_character_card(pokemon_data)\nexport_to_sillytavern(character_card, r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards\\Pikachu_character_card.json')",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -328,7 +337,7 @@
         "kind": 2,
         "importPath": "extractor",
         "description": "extractor",
-        "peekOfCode": "def clean_text(text):\n    \"\"\"\n    Cleans the input text by removing newline and form feed characters, and replacing \\u00e9 with é.\n    :param text: The text to clean.\n    :return: Cleaned text.\n    \"\"\"\n    return text.replace('\\n', ' ').replace('\\f', ' ').replace('\\u00e9', 'é')\ndef get_pokemon_data(species_identifier):\n    \"\"\"\n    Fetches types and Pokédex entries from the PokeAPI for a given Pokémon species identifier.",
+        "peekOfCode": "def clean_text(text):\n    \"\"\"\n    Cleans the input text by removing newline and form feed characters, and replacing \\u00e9 with é.\n    :param text: The text to clean.\n    :return: Cleaned text.\n    \"\"\"\n    return text.replace('\\n', ' ').replace('\\f', ' ').replace('\\u00e9', 'é')\ndef get_pokemon_data(species_identifier):\n    \"\"\"\n    Fetches types, Pokédex entries, species name, and species number from the PokeAPI for a given Pokémon species identifier.",
         "detail": "extractor",
         "documentation": {}
     },
@@ -337,7 +346,7 @@
         "kind": 2,
         "importPath": "extractor",
         "description": "extractor",
-        "peekOfCode": "def get_pokemon_data(species_identifier):\n    \"\"\"\n    Fetches types and Pokédex entries from the PokeAPI for a given Pokémon species identifier.\n    :param species_identifier: The species name or ID of the Pokémon to fetch data for.\n    :return: Dictionary containing types and a list of the 5 longest, unique Pokédex entries.\n    \"\"\"\n    url = f\"https://pokeapi.co/api/v2/pokemon/{species_identifier}\"\n    species_url = f\"https://pokeapi.co/api/v2/pokemon-species/{species_identifier}\"\n    try:\n        # Fetching basic Pokémon data to get the types",
+        "peekOfCode": "def get_pokemon_data(species_identifier):\n    \"\"\"\n    Fetches types, Pokédex entries, species name, and species number from the PokeAPI for a given Pokémon species identifier.\n    :param species_identifier: The species name or ID of the Pokémon to fetch data for.\n    :return: Dictionary containing species name, species number, types, and a list of the 5 longest, unique Pokédex entries.\n    \"\"\"\n    url = f\"https://pokeapi.co/api/v2/pokemon/{species_identifier}\"\n    species_url = f\"https://pokeapi.co/api/v2/pokemon-species/{species_identifier}\"\n    try:\n        # Fetching basic Pokémon data to get the types",
         "detail": "extractor",
         "documentation": {}
     },
