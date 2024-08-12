@@ -18,21 +18,48 @@
         "documentation": {}
     },
     {
-        "label": "csv",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "csv",
-        "description": "csv",
-        "detail": "csv",
-        "documentation": {}
-    },
-    {
         "label": "requests",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "requests",
         "description": "requests",
         "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "base64",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "base64",
+        "description": "base64",
+        "detail": "base64",
+        "documentation": {}
+    },
+    {
+        "label": "struct",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "struct",
+        "description": "struct",
+        "detail": "struct",
+        "documentation": {}
+    },
+    {
+        "label": "zlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "zlib",
+        "description": "zlib",
+        "detail": "zlib",
+        "documentation": {}
+    },
+    {
+        "label": "csv",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "csv",
+        "description": "csv",
+        "detail": "csv",
         "documentation": {}
     },
     {
@@ -54,11 +81,20 @@
         "documentation": {}
     },
     {
+        "label": "download_sprite",
+        "kind": 2,
+        "importPath": "character_maker",
+        "description": "character_maker",
+        "peekOfCode": "def download_sprite(species_number, save_path):\n    url = f\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{species_number}.png\"\n    response = requests.get(url)\n    if response.status_code == 200:\n        with open(save_path, 'wb') as file:\n            file.write(response.content)\n        print(f\"Downloaded sprite for species {species_number}\")\n    else:\n        print(f\"Failed to download sprite for species {species_number}\")\ndef create_character_card(pokemon_data):",
+        "detail": "character_maker",
+        "documentation": {}
+    },
+    {
         "label": "create_character_card",
         "kind": 2,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "def create_character_card(pokemon_data):\n    nickname = pokemon_data.get('Nickname', None) or pokemon_data.get('Species', {}).get('Name', 'Unknown Species')\n    trainer = \"{{user}}\"\n    species_name = pokemon_data.get('Species', {}).get('Name', 'Unknown Species')\n    met_location = pokemon_data.get('Origin Info', {}).get('Met Location', 'Unknown Location')\n    friendship = pokemon_data.get('Friendship', 0)\n    level = pokemon_data.get('Level', 1)\n    age = max(level, 18)  # Set minimum age to 18\n    nature = pokemon_data.get('Nature', 'Unknown Nature')\n    gender = pokemon_data.get('Origin Info', {}).get('Gender', 'Unknown Gender')",
+        "peekOfCode": "def create_character_card(pokemon_data):\n    nickname = pokemon_data.get('Nickname', None) or pokemon_data.get('Species', {}).get('Name', 'Unknown Species')\n    trainer = \"{{user}}\"\n    species_name = pokemon_data.get('Species', {}).get('Name', 'Unknown Species')\n    species_number = pokemon_data.get('Species', {}).get('Number', '0')\n    met_location = pokemon_data.get('Origin Info', {}).get('Met Location', 'Unknown Location')\n    friendship = pokemon_data.get('Friendship', 0)\n    level = pokemon_data.get('Level', 1)\n    age = max(level, 18)  # Set minimum age to 18\n    nature = pokemon_data.get('Nature', 'Unknown Nature')",
         "detail": "character_maker",
         "documentation": {}
     },
@@ -72,38 +108,56 @@
         "documentation": {}
     },
     {
+        "label": "encode_json_to_base64",
+        "kind": 2,
+        "importPath": "character_maker",
+        "description": "character_maker",
+        "peekOfCode": "def encode_json_to_base64(json_data):\n    json_str = json.dumps(json_data)\n    base64_str = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')\n    return base64_str\ndef create_png_with_embedded_json(input_png_path, output_png_path, base64_json_str):\n    with open(input_png_path, 'rb') as f:\n        png_data = f.read()\n    # Split the PNG into chunks\n    chunks = []\n    i = 8  # PNG header is 8 bytes, start after that",
+        "detail": "character_maker",
+        "documentation": {}
+    },
+    {
+        "label": "create_png_with_embedded_json",
+        "kind": 2,
+        "importPath": "character_maker",
+        "description": "character_maker",
+        "peekOfCode": "def create_png_with_embedded_json(input_png_path, output_png_path, base64_json_str):\n    with open(input_png_path, 'rb') as f:\n        png_data = f.read()\n    # Split the PNG into chunks\n    chunks = []\n    i = 8  # PNG header is 8 bytes, start after that\n    while i < len(png_data):\n        length = struct.unpack('>I', png_data[i:i+4])[0]\n        chunk_type = png_data[i+4:i+8]\n        chunk_data = png_data[i+8:i+8+length]",
+        "detail": "character_maker",
+        "documentation": {}
+    },
+    {
         "label": "export_to_sillytavern",
         "kind": 2,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "def export_to_sillytavern(character_card, file_name):\n    card_data = {\n        \"data\": {\n            \"alternate_greetings\": [],\n            \"avatar\": \"none\",\n            \"character_version\": \"1.0\",\n            \"creator\": \"Pokémon Import Script\",\n            \"creator_notes\": \"\",\n            \"description\": trade_to_real_world(character_card),\n            \"extensions\": {",
+        "peekOfCode": "def export_to_sillytavern(character_card, file_name, image_file):\n    # Prepare character card data\n    card_data = {\n        \"data\": {\n            \"alternate_greetings\": [],\n            \"avatar\": image_file,  # Link to the sprite image\n            \"character_version\": \"1.0\",\n            \"creator\": \"Pokémon Import Script\",\n            \"creator_notes\": \"\",\n            \"description\": trade_to_real_world(character_card),",
         "detail": "character_maker",
         "documentation": {}
     },
     {
-        "label": "file_path",
-        "kind": 5,
+        "label": "process_pokemon_files",
+        "kind": 2,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "file_path = r'D:\\Scripts\\pkmn-extractor\\exported_pokemon\\Pikachu.json'  # Update this path\npokemon_data = load_pokemon_data(file_path)\ncharacter_card = create_character_card(pokemon_data)\nexport_to_sillytavern(character_card, r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards\\Pikachu_character_card.json')",
+        "peekOfCode": "def process_pokemon_files(input_dir, output_dir):\n    for filename in os.listdir(input_dir):\n        if filename.endswith(\".json\"):\n            file_path = os.path.join(input_dir, filename)\n            pokemon_data = load_pokemon_data(file_path)\n            character_card = create_character_card(pokemon_data)\n            # Determine the file name based on the nickname or species name\n            sprite_name = character_card['name'].replace(\" \", \"_\")\n            sprite_path = os.path.join(output_dir, f\"{sprite_name}.png\")\n            # Download the sprite",
         "detail": "character_maker",
         "documentation": {}
     },
     {
-        "label": "pokemon_data",
+        "label": "input_dir",
         "kind": 5,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "pokemon_data = load_pokemon_data(file_path)\ncharacter_card = create_character_card(pokemon_data)\nexport_to_sillytavern(character_card, r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards\\Pikachu_character_card.json')",
+        "peekOfCode": "input_dir = r'D:\\Scripts\\pkmn-extractor\\exported_pokemon'\noutput_dir = r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards'\n# Process all Pokémon JSON files\nprocess_pokemon_files(input_dir, output_dir)",
         "detail": "character_maker",
         "documentation": {}
     },
     {
-        "label": "character_card",
+        "label": "output_dir",
         "kind": 5,
         "importPath": "character_maker",
         "description": "character_maker",
-        "peekOfCode": "character_card = create_character_card(pokemon_data)\nexport_to_sillytavern(character_card, r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards\\Pikachu_character_card.json')",
+        "peekOfCode": "output_dir = r'D:\\Scripts\\pkmn-extractor\\pokemon_character_cards'\n# Process all Pokémon JSON files\nprocess_pokemon_files(input_dir, output_dir)",
         "detail": "character_maker",
         "documentation": {}
     },

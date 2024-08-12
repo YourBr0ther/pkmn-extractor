@@ -1,4 +1,9 @@
 import json
+import os
+import requests
+import base64
+import struct
+import zlib
 
 def load_pokemon_data(file_path):
     with open(file_path, 'r') as file:
@@ -31,11 +36,22 @@ def determine_friendship_level(friendship):
     else:
         return "Hostile"
 
+def download_sprite(species_number, save_path):
+    url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{species_number}.png"
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(save_path, 'wb') as file:
+            file.write(response.content)
+        print(f"Downloaded sprite for species {species_number}")
+    else:
+        print(f"Failed to download sprite for species {species_number}")
+
 def create_character_card(pokemon_data):
     nickname = pokemon_data.get('Nickname', None) or pokemon_data.get('Species', {}).get('Name', 'Unknown Species')
     trainer = "{{user}}"
     
     species_name = pokemon_data.get('Species', {}).get('Name', 'Unknown Species')
+    species_number = pokemon_data.get('Species', {}).get('Number', '0')
     met_location = pokemon_data.get('Origin Info', {}).get('Met Location', 'Unknown Location')
     friendship = pokemon_data.get('Friendship', 0)
     level = pokemon_data.get('Level', 1)
@@ -65,6 +81,7 @@ def create_character_card(pokemon_data):
     character_card = {
         "name": nickname,
         "species": species_name,
+        "species_number": species_number,
         "personality": personality.strip(),
         "trainer": trainer,
         "met_location": met_location,
@@ -100,11 +117,52 @@ def trade_to_real_world(character_card):
 
     return intro
 
-def export_to_sillytavern(character_card, file_name):
+def encode_json_to_base64(json_data):
+    json_str = json.dumps(json_data)
+    base64_str = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+    return base64_str
+
+def create_png_with_embedded_json(input_png_path, output_png_path, base64_json_str):
+    with open(input_png_path, 'rb') as f:
+        png_data = f.read()
+
+    # Split the PNG into chunks
+    chunks = []
+    i = 8  # PNG header is 8 bytes, start after that
+    while i < len(png_data):
+        length = struct.unpack('>I', png_data[i:i+4])[0]
+        chunk_type = png_data[i+4:i+8]
+        chunk_data = png_data[i+8:i+8+length]
+        crc = struct.unpack('>I', png_data[i+8+length:i+12+length])[0]
+        chunks.append((chunk_type, chunk_data, crc))
+        i += length + 12
+
+    # Create new tEXt chunk with the embedded JSON data
+    tEXt_chunk_type = b'tEXt'
+    tEXt_chunk_data = b'chara\x00' + base64_json_str.encode('utf-8')
+    tEXt_crc = zlib.crc32(tEXt_chunk_type + tEXt_chunk_data) & 0xffffffff
+    tEXt_chunk = (tEXt_chunk_type, tEXt_chunk_data, tEXt_crc)
+
+    # Insert the tEXt chunk after the IHDR chunk (which is always the first chunk)
+    chunks.insert(1, tEXt_chunk)
+
+    # Reassemble the PNG
+    with open(output_png_path, 'wb') as f:
+        f.write(png_data[:8])  # PNG header
+        for chunk_type, chunk_data, crc in chunks:
+            f.write(struct.pack('>I', len(chunk_data)))
+            f.write(chunk_type)
+            f.write(chunk_data)
+            f.write(struct.pack('>I', crc))
+
+    print(f"Character card saved as {output_png_path} with embedded JSON data")
+
+def export_to_sillytavern(character_card, file_name, image_file):
+    # Prepare character card data
     card_data = {
         "data": {
             "alternate_greetings": [],
-            "avatar": "none",
+            "avatar": image_file,  # Link to the sprite image
             "character_version": "1.0",
             "creator": "Pokémon Import Script",
             "creator_notes": "",
@@ -150,16 +208,36 @@ def export_to_sillytavern(character_card, file_name):
         "chat": "",
         "create_date": "",
         "creatorcomment": "",
-        "avatar": "none"
+        "avatar": image_file
     }
     
-    with open(file_name, 'w') as file:
-        json.dump(card_data, file, indent=4)
+    # Encode the character card data to base64
+    base64_json_str = encode_json_to_base64(card_data)
     
-    print(f"Character card saved as {file_name}")
+    # Embed the JSON into the PNG file
+    create_png_with_embedded_json(image_file, file_name + ".png", base64_json_str)
 
-# Use the correct path for your environment
-file_path = r'D:\Scripts\pkmn-extractor\exported_pokemon\Pikachu.json'  # Update this path
-pokemon_data = load_pokemon_data(file_path)
-character_card = create_character_card(pokemon_data)
-export_to_sillytavern(character_card, r'D:\Scripts\pkmn-extractor\pokemon_character_cards\Pikachu_character_card.json')
+def process_pokemon_files(input_dir, output_dir):
+    for filename in os.listdir(input_dir):
+        if filename.endswith(".json"):
+            file_path = os.path.join(input_dir, filename)
+            pokemon_data = load_pokemon_data(file_path)
+            character_card = create_character_card(pokemon_data)
+            
+            # Determine the file name based on the nickname or species name
+            sprite_name = character_card['name'].replace(" ", "_")
+            sprite_path = os.path.join(output_dir, f"{sprite_name}.png")
+            
+            # Download the sprite
+            species_number = character_card.get('species_number', '0')
+            download_sprite(species_number, sprite_path)
+            
+            # Export to SillyTavern format with embedded JSON
+            export_to_sillytavern(character_card, os.path.join(output_dir, sprite_name), sprite_path)
+
+# Define the input and output directories
+input_dir = r'D:\Scripts\pkmn-extractor\exported_pokemon'
+output_dir = r'D:\Scripts\pkmn-extractor\pokemon_character_cards'
+
+# Process all Pokémon JSON files
+process_pokemon_files(input_dir, output_dir)
